@@ -3,6 +3,7 @@ import {User} from "./User";
 import {IdentitySerializer, JsonSerializer, RSocketClient} from 'rsocket-core';
 import RSocketWebSocketClient from "rsocket-websocket-client";
 import {ISubscription} from "rsocket-types/ReactiveStreamTypes";
+import {Encodable, Payload} from "rsocket-types/ReactiveSocketTypes";
 
 @Component({
   selector: 'app-root',
@@ -34,8 +35,10 @@ export class AppComponent {
         socket.requestStream({data: undefined, metadata: String.fromCharCode(this.path.length) + this.path})
           .subscribe({
             onError: errorHanlder,
-            onNext: (payload: any) => {
-              this.users.push(payload.data)
+            onNext: ({data}: Payload<User, Encodable>) => {
+              if (data) {
+                this.users.push(data)
+              }
             },
             onSubscribe: (subscription: ISubscription) => {
               subscription.request(10000); // set it to some max value

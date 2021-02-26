@@ -10,14 +10,15 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.UUID;
 
+import static reactor.core.publisher.Sinks.EmitFailureHandler.FAIL_FAST;
+
 @Service
 @Log4j2
-public class MyService /*implements ApplicationEventPublisherAware*/ {
+public class MyService {
     private final KafkaTemplate<String, Person> kafkaTemplate;
     private final Sinks.Many<Person> persons;
 
@@ -28,7 +29,7 @@ public class MyService /*implements ApplicationEventPublisherAware*/ {
                 .limit(3);
     }
 
-    public Mono<Void> publish() {
+    public void publish() {
         UUID uuid = UUID.randomUUID();
         kafkaTemplate.send("test",
                 uuid.toString(),
@@ -37,12 +38,11 @@ public class MyService /*implements ApplicationEventPublisherAware*/ {
                         .setFirstName("Mark-" + Math.round(Math.random() * 100))
                         .setLastName("Seb-" + Math.round(Math.random() * 100))
         ).completable();
-        return Mono.empty();
     }
 
     @KafkaListener(topics = "test", groupId = "testseb")
     public void consumer(ConsumerRecord<String, Person> record) {
-        this.persons.emitNext(record.value(), Sinks.EmitFailureHandler.FAIL_FAST);
+        this.persons.emitNext(record.value(), FAIL_FAST);
     }
 
     public Flux<Person> findAll() {

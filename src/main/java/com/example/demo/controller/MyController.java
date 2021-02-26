@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
@@ -28,8 +27,8 @@ public class MyController {
     }
 
     @PostMapping("publish")
-    public Mono<Void> publish() {
-        return service.publish();
+    public void publish() {
+        service.publish();
     }
 
     @MessageMapping("findAll")
