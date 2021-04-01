@@ -17,10 +17,9 @@ import RSocketWebSocketClient from 'rsocket-websocket-client';
 import type { Encodable } from 'rsocket-types';
 import { Payload } from 'rsocket-types/ReactiveSocketTypes';
 import { ISubscription } from 'rsocket-types/ReactiveStreamTypes';
-import { SubcribeNotif } from '../home/SubcribeNotif';
 
 export class RSocketClientUtils {
-    public static clientConfig(jwt: string, url: string): ClientConfig<SubcribeNotif, Encodable> {
+    public static clientConfig(jwt: string, url: string): ClientConfig<any, Encodable> {
         return {
             serializers: {
                 data: JsonSerializer,

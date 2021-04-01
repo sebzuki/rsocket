@@ -30,7 +30,11 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "rsocket-core",
+              "rsocket-websocket-client"
+            ]
           },
           "configurations": {
             "production": {
