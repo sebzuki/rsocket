@@ -20,11 +20,11 @@ import static reactor.core.publisher.Sinks.EmitFailureHandler.FAIL_FAST;
 @Log4j2
 public class MyService {
     private final KafkaTemplate<String, Person> kafkaTemplate;
-    private final Sinks.Many<Person> persons;
+    private final Sinks.Many<Person> stream;
 
     public MyService(KafkaTemplate<String, Person> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.persons = Sinks.many()
+        this.stream = Sinks.many()
                 .replay()
                 .limit(3);
     }
@@ -42,14 +42,14 @@ public class MyService {
 
     @KafkaListener(topics = "test", groupId = "testseb")
     public void consumer(ConsumerRecord<String, Person> record) {
-        this.persons.emitNext(record.value(), FAIL_FAST);
+        this.stream.emitNext(record.value(), FAIL_FAST);
     }
 
-    public Flux<Person> findAll() {
-        return this.persons.asFlux();
+    public Flux<Person> stream() {
+        return this.stream.asFlux();
     }
 
     public int subscribers() {
-        return this.persons.currentSubscriberCount();
+        return this.stream.currentSubscriberCount();
     }
 }

@@ -1,0 +1,22 @@
+<div xmlns="http://www.w3.org/1999/html">
+    <h2>Welcome <span style="color: darkgreen">{{ userProfile?.firstName }}</span> to OpenID Connect awesome project !</h2>
+    <div>
+        You logged in with the Authorization Code Flow + PKCE !
+    </div>
+    <br>
+    <div>
+        <div><em>My profile : </em></div><br>
+        <div><em>login : </em> {{ userProfile?.login }}</div>
+        <div><em>id : </em> {{ userProfile?.id }}</div>
+        <div><em>firstName : </em> {{ userProfile?.firstName }}</div>
+        <div><em>lastName : </em> {{ userProfile?.lastName }}</div>
+        <div><em>email : </em> {{ userProfile?.email }}</div>
+        <div><em>user permissions : </em> {{ permissions }}</div>
+
+        <ul class="container">
+            <li *ngFor="let notif of notifs">
+                {{ notif.firstName}} - {{ notif.lastName }}
+            </li>
+        </ul>
+    </div>
+</div>
