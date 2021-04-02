@@ -13,7 +13,7 @@
         <div><em>email : </em> {{ userProfile?.email }}</div>
         <div><em>user permissions : </em> {{ permissions }}</div>
 
-        <div><em>RSocket status : </em> {{ success? 'OK' : error }}</div>
+        <div><em>RSocket status : </em> {{ success? 'OK' : error }} (Total Subscribers: {{ number$ | async }})</div>
         <ul class="container">
             <li *ngFor="let notif of notifs">
                 {{ notif.firstName}} - {{ notif.lastName }}

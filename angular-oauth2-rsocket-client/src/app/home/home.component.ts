@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../core/auth-service.component';
 import { UserProfile } from '../oidc/model/user-profile';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { Notif } from './Notif';
 import { RSocketClientUtils } from '../core/RSocketClientUtils';
 
@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     subscriptionToken: Subscription;
     error: string = 'Not initialized';
     success: boolean = false;
+    number$: Observable<number>;
 
     constructor(private _authService: AuthService, private _httpClient: HttpClient) {
     }
@@ -29,6 +30,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.userProfile = this._authService.getUserProfile();
         this.permissions = this.userProfile?.userPermissions.map(p => p.role);
+
+        this.loadAppelCascade().subscribe(value => console.log(value));
 
         this.subscriptionToken = this._authService.getAccessToken().subscribe(accessToken =>
             RSocketClientUtils.requestStream({
@@ -49,11 +52,20 @@ export class HomeComponent implements OnInit, OnDestroy {
                 },
                 onSuccess: (success) => {
                     this.success = success;
+                    this.loadSubscribers();
                 },
                 onError: (error) => {
                     this.error = error;
                 }
             })
         );
+    }
+
+    loadSubscribers(): void {
+        this.number$ = this._httpClient.get<number>('http://localhost:8082/api/subscribers');
+    }
+
+    loadAppelCascade(): Observable<any> {
+        return this._httpClient.get<number>('http://localhost:8082/api/ext');
     }
 }

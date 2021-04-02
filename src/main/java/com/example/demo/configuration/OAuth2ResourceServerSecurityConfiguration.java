@@ -6,6 +6,7 @@ package com.example.demo.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -14,7 +15,6 @@ import org.springframework.security.config.annotation.rsocket.EnableRSocketSecur
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.messaging.handler.invocation.reactive.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -23,18 +23,20 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtRea
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Configuration
 @EnableWebFlux
 @EnableWebFluxSecurity
 @EnableRSocketSecurity
 @EnableReactiveMethodSecurity
-public class OAuth2ResourceServerSecurityConfiguration implements WebFluxConfigurer {
+public class OAuth2ResourceServerSecurityConfiguration {
     public static final String ROLE = "ROLE_";
     private final ClaimsConfiguration claimsConfiguration;
 
@@ -42,41 +44,40 @@ public class OAuth2ResourceServerSecurityConfiguration implements WebFluxConfigu
         this.claimsConfiguration = claimsConfiguration;
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry corsRegistry) {
-        corsRegistry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("PUT", "GET", "POST", "OPTION")
-                .maxAge(3600);
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getInterceptors().add((request, body, clientHttpRequestExecution) -> {
-            Jwt accessToken = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            request.getHeaders().setBearerAuth(accessToken.getTokenValue());
-            return clientHttpRequestExecution.execute(request, body);
-        });
-
-        return restTemplate;
-    }
-
     // POUR HTTP WEBFLUX
+    @Bean
+    CorsWebFilter corsWebFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedHeaders(List.of("*"));
+        corsConfig.setAllowedOriginPatterns(List.of("*"));
+        corsConfig.addAllowedMethod("OPTIONS");
+        corsConfig.addAllowedMethod("PUT");
+        corsConfig.addAllowedMethod("POST");
+        corsConfig.addAllowedMethod("GET");
+        corsConfig.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+
+        return new CorsWebFilter(source);
+    }
+
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf().disable()
                 .authorizeExchange()
+                .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/v2/api-docs").permitAll()
                 .pathMatchers("/actuator").permitAll()
                 .pathMatchers("/actuator/**").permitAll()
-                .pathMatchers("/api/**").permitAll()
+                .pathMatchers("/api/publish").permitAll()
                 .anyExchange().authenticated()
                 .and()
                 .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(jwt ->
-                                jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
+                        oauth2ResourceServer
+                                .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
                 )
                 .build();
     }

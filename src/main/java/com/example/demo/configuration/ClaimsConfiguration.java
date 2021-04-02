@@ -15,5 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class ClaimsConfiguration {
 
     private String role;
+    private String login;
     private String issuer;
 }
