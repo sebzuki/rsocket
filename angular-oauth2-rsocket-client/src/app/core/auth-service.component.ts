@@ -137,7 +137,11 @@ export class AuthService {
     }
 
     getUserProfile(): UserProfile {
-        return this.authContext?.userProfile;
+        if (this.authContext) {
+            return this.authContext?.userProfile;
+        } else {
+            this._userManager.signinRedirect();
+        }
     }
 
     userName(): string {

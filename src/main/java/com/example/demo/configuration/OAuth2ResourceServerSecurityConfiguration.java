@@ -68,7 +68,11 @@ public class OAuth2ResourceServerSecurityConfiguration implements WebFluxConfigu
         return http
                 .csrf().disable()
                 .authorizeExchange()
-                .pathMatchers("/**").authenticated()
+                .pathMatchers("/v2/api-docs").permitAll()
+                .pathMatchers("/actuator").permitAll()
+                .pathMatchers("/actuator/**").permitAll()
+                .pathMatchers("/api/**").permitAll()
+                .anyExchange().authenticated()
                 .and()
                 .oauth2ResourceServer(oauth2ResourceServer ->
                         oauth2ResourceServer.jwt(jwt ->

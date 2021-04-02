@@ -54,21 +54,18 @@ export class RSocketClientUtils {
                         [ MESSAGE_RSOCKET_ROUTING, encodeRoute(call.api) ]
                     ])
                 }).subscribe({
-                    onComplete: () => console.debug('onComplete'),
+                    onComplete: () => console.info('onComplete'),
                     onNext: (payload: Payload<any, Encodable>) => call.onNext(payload.data),
                     onSubscribe: (subscription: ISubscription) => {
-                        subscription.request(10000); // set it to some max value
+                        call.onSuccess(true);
+                        subscription.request(1000000); // set it to some max value
                     },
-                    onError: this.errorHanlder,
+                    onError: call.onError,
                 })
             },
-            onError: this.errorHanlder,
+            onError: call.onError,
             onSubscribe: cancel => call.cancelCallback(cancel)
         })
-    }
-
-    private static errorHanlder(e: any): void {
-        console.error(e);
     }
 }
 
@@ -78,5 +75,7 @@ export interface RSocketRequest {
     api: string,
     parameters: any,
     onNext,
+    onError,
+    onSuccess,
     cancelCallback
 }

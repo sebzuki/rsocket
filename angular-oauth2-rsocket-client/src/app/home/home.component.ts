@@ -16,6 +16,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     notifs: Notif[] = [];
     url: string = 'ws://localhost:7000/rsocket';
     subscriptionToken: Subscription;
+    error: string = 'Not initialized';
+    success: boolean = false;
 
     constructor(private _authService: AuthService, private _httpClient: HttpClient) {
     }
@@ -44,6 +46,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                 },
                 cancelCallback: (cancel) => {
                     // call cancel to stop
+                },
+                onSuccess: (success) => {
+                    this.success = success;
+                },
+                onError: (error) => {
+                    this.error = error;
                 }
             })
         );
