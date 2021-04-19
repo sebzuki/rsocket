@@ -29,7 +29,6 @@ public class MyStream {
     @MessageMapping({"stream"})
     public Flux<Person> stream(@RequestParam SubcribeNotif notif, @AuthenticationPrincipal Jwt jwt) {
         String login = authUtil.getLogin(jwt);
-
-        return service.stream();
+        return service.stream(login);
     }
 }

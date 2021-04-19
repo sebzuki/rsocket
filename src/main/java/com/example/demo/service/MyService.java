@@ -50,7 +50,7 @@ public class MyService {
         this.stream.emitNext(record.value(), FAIL_FAST);
     }
 
-    public Flux<Person> stream() {
+    public Flux<Person> stream(String login) {
         return this.stream.asFlux();
     }
 
