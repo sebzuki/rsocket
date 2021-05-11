@@ -35,17 +35,13 @@ public class MyService {
     }
 
     public void publish() {
-        UUID uuid = UUID.randomUUID();
-        kafkaTemplate.send("test",
-                uuid.toString(),
-                new Person()
-                        .setId(uuid)
-                        .setFirstName("Mark-" + Math.round(Math.random() * 100))
-                        .setLastName("Seb-" + Math.round(Math.random() * 100))
-        ).completable();
+        this.stream.emitNext(new Person()
+                .setId(UUID.randomUUID())
+                .setFirstName("Mark-" + Math.round(Math.random() * 100))
+                .setLastName("Seb-" + Math.round(Math.random() * 100)), FAIL_FAST);
     }
 
-    @KafkaListener(topics = "test", groupId = "testseb")
+//    @KafkaListener(topics = "test", groupId = "testseb")
     public void consumer(ConsumerRecord<String, Person> record) {
         this.stream.emitNext(record.value(), FAIL_FAST);
     }

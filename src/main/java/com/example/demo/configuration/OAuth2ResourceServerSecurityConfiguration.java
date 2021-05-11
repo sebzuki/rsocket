@@ -73,12 +73,12 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .pathMatchers("/actuator").permitAll()
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers("/api/publish").permitAll()
-                .anyExchange().authenticated()
+                .anyExchange().permitAll()
                 .and()
-                .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer
-                                .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
-                )
+//                .oauth2ResourceServer(oauth2ResourceServer ->
+//                        oauth2ResourceServer
+//                                .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
+//                )
                 .build();
     }
 
@@ -107,11 +107,11 @@ public class OAuth2ResourceServerSecurityConfiguration {
         return rsocket
                 .authorizePayload(authorize ->
                         authorize
-                                .route("*").authenticated()
-                                .anyRequest().authenticated()
-                                .anyExchange().authenticated())
-                .jwt(jwtSpec -> jwtSpec.authenticationManager(jwtReactiveAuthenticationManager(
-                        ReactiveJwtDecoders.fromOidcIssuerLocation(claimsConfiguration.getIssuer()))))
+                                .route("*").permitAll()
+                                .anyRequest().permitAll()
+                                .anyExchange().permitAll())
+//                .jwt(jwtSpec -> jwtSpec.authenticationManager(jwtReactiveAuthenticationManager(
+//                        ReactiveJwtDecoders.fromOidcIssuerLocation(claimsConfiguration.getIssuer()))))
                 .build();
     }
 

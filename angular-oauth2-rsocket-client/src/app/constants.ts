@@ -1,7 +1,7 @@
 // link with ENV parameters here
 export class Constants {
 	public static clientRoot = 'http://localhost:4200/';
-	public static oidcProvider = 'http://192.168.56.1:8080/auth/realms/msa/.well-known/openid-configuration';
+	public static oidcProvider = 'https://sso.aron-lab.fr/auth/realms/msa/.well-known/openid-configuration';
 	public static clientId = 'spa';
 	public static scope  ='openid profile email';
 	public static responseType  ='code';

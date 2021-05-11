@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from '../core/auth-service.component';
-import { UserProfile } from '../oidc/model/user-profile';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subscription } from "rxjs";
-import { Notif } from './Notif';
-import { RSocketClientUtils } from '../core/RSocketClientUtils';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AuthService} from '../core/auth-service.component';
+import {UserProfile} from '../oidc/model/user-profile';
+import {HttpClient} from '@angular/common/http';
+import {Observable, Subscription} from 'rxjs';
+import {Notif} from './Notif';
+import {RSocketClientUtils} from '../core/RSocketClientUtils';
 
 @Component({
     selector: 'app-home',
@@ -19,22 +19,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     error: string = 'Not initialized';
     success: boolean = false;
     number$: Observable<number>;
+    utils: RSocketClientUtils = null
 
     constructor(private _authService: AuthService, private _httpClient: HttpClient) {
     }
 
     ngOnDestroy(): void {
         this.subscriptionToken.unsubscribe();
+        this.utils?.close();
     }
 
     ngOnInit() {
         this.userProfile = this._authService.getUserProfile();
         this.permissions = this.userProfile?.userPermissions.map(p => p.role);
 
-        this.loadAppelCascade().subscribe(value => console.log(value));
+        // this.loadAppelCascade().subscribe(value => console.log(value));
 
-        this.subscriptionToken = this._authService.getAccessToken().subscribe(accessToken =>
-            RSocketClientUtils.requestStream({
+        this.subscriptionToken = this._authService.getAccessToken().subscribe(accessToken => {
+            this.utils = new RSocketClientUtils({
                 jwt: accessToken,
                 url: this.url,
                 api: 'stream',
@@ -57,8 +59,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                 onError: (error) => {
                     this.error = error;
                 }
-            })
-        );
+            });
+
+            this.utils.requestStream();
+        });
     }
 
     loadSubscribers(): void {
