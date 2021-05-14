@@ -8,12 +8,12 @@ import { map } from 'rxjs/operators';
 @Injectable({
     providedIn: 'root'
 })
-export class WebsocketService {
+export class NotificationService {
     private notifServerUrl: string = 'ws://localhost:7000/rsocket';
 
     constructor(private _authService: AuthService) {}
 
-    subscribeNotif(init: InitNotif): Observable<ClientResume> {
+    subscribeSummerNotif(init: InitNotif): Observable<ClientResume> {
         return this._authService.getAccessToken()
             .pipe(map(accessToken => {
                 return new ClientResume({

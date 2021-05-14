@@ -4,8 +4,8 @@ import { UserProfile } from '../oidc/model/user-profile';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { Notif } from './Notif';
-import { ClientResume } from '../websocket/ClientResume';
-import { WebsocketService } from '../websocket/websocket-service.component';
+import { ClientResume } from '../notification/ClientResume';
+import { NotificationService } from '../notification/notification-service.component';
 
 @Component({
     selector: 'app-home',
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     notif: ClientResume = null
     subscription: Subscription
 
-    constructor(private websocket: WebsocketService,
+    constructor(private notifService: NotificationService,
                 private _authService: AuthService,
                 private _httpClient: HttpClient) {
     }
@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // this.loadAppelCascade().subscribe(value => console.log(value));
 
-        this.subscription = this.websocket.subscribeNotif({
+        this.subscription = this.notifService.subscribeSummerNotif({
             parameters: {
                 id: '123e4567-e89b-12d3-a456-426614174000',
                 code: 'NH2-1'
