@@ -1,16 +1,16 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {AuthService} from '../core/auth-service.component';
-import {UserProfile} from '../oidc/model/user-profile';
-import {HttpClient} from '@angular/common/http';
-import {Observable, Subscription} from 'rxjs';
-import {Notif} from './Notif';
-import {RSocketClientUtils} from '../core/RSocketClientUtils';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AuthService } from '../core/auth-service.component';
+import { UserProfile } from '../oidc/model/user-profile';
+import { HttpClient } from '@angular/common/http';
+import { Observable, Subscription } from 'rxjs';
+import { Notif } from './Notif';
+import { RSocketClientResume } from '../core/RSocketClientResume';
 
 @Component({
     selector: 'app-home',
     templateUrl: 'home.component.html'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     userProfile: UserProfile;
     permissions: string[];
     notifs: Notif[] = [];
@@ -19,9 +19,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     error: string = 'Not initialized';
     success: boolean = false;
     number$: Observable<number>;
-    utils: RSocketClientUtils = null
+    utils: RSocketClientResume = null
 
     constructor(private _authService: AuthService, private _httpClient: HttpClient) {
+    }
+
+    ngAfterViewInit(): void {
+        this.loadSubscribers();
     }
 
     ngOnDestroy(): void {
@@ -36,7 +40,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         // this.loadAppelCascade().subscribe(value => console.log(value));
 
         this.subscriptionToken = this._authService.getAccessToken().subscribe(accessToken => {
-            this.utils = new RSocketClientUtils({
+            this.utils = new RSocketClientResume({
                 jwt: accessToken,
                 url: this.url,
                 api: 'stream',
@@ -49,24 +53,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                         this.notifs.push(data)
                     }
                 },
-                cancelCallback: (cancel) => {
-                    // call cancel to stop
-                },
-                onSuccess: (success) => {
-                    this.success = success;
-                    this.loadSubscribers();
-                },
-                onError: (error) => {
-                    this.error = error;
-                }
             });
-
-            this.utils.requestStream();
         });
     }
 
     loadSubscribers(): void {
-        this.number$ = this._httpClient.get<number>('http://localhost:8082/api/subscribers');
+        // this.number$ = this._httpClient.get<number>('http://localhost:8082/api/subscribers');
     }
 
     loadAppelCascade(): Observable<any> {

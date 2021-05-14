@@ -10,15 +10,18 @@ import {
     MESSAGE_RSOCKET_COMPOSITE_METADATA,
     MESSAGE_RSOCKET_ROUTING,
     RSocketClient,
+    RSocketResumableTransport,
     UTF8Encoder
 } from 'rsocket-core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
-import type {Encodable} from 'rsocket-types';
-import {Payload} from 'rsocket-types/ReactiveSocketTypes';
-import {ISubscription} from 'rsocket-types/ReactiveStreamTypes';
+import type { Encodable } from 'rsocket-types';
+import { ConnectionStatus } from 'rsocket-types';
+import { Payload } from 'rsocket-types/ReactiveSocketTypes';
+import { ISubscription } from 'rsocket-types/ReactiveStreamTypes';
+import { Flowable } from 'rsocket-flowable';
 
-export class RSocketClientUtils {
-    private webSocketClient: RSocketWebSocketClient = null;
+export class RSocketClientHandler {
+    private webSocketClient: RSocketResumableTransport = null;
     private client: RSocketClient<any, any> = null;
     private call: RSocketRequest = null;
 
@@ -26,11 +29,11 @@ export class RSocketClientUtils {
         this.call = call;
 
         this.webSocketClient = new RSocketWebSocketClient(
-            {url: this.call.url},
-            {
-                ...BufferEncoders,
-                data: UTF8Encoder,
-            });
+                {url: this.call.url},
+                {
+                    ...BufferEncoders,
+                    data: UTF8Encoder,
+                });
 
         this.client = new RSocketClient({
             serializers: {
@@ -48,8 +51,13 @@ export class RSocketClientUtils {
                     ])
                 },
             },
-            transport: this.webSocketClient
+            transport: this.webSocketClient,
+            errorHandler: this.call.onError
         });
+    }
+
+    public getStatus(): Flowable<ConnectionStatus> {
+        return this.webSocketClient.connectionStatus();
     }
 
     public requestStream(): void {
@@ -61,17 +69,16 @@ export class RSocketClientUtils {
                         [MESSAGE_RSOCKET_ROUTING, encodeRoute(this.call.api)]
                     ])
                 }).subscribe({
-                    onComplete: () => console.info('onComplete'),
                     onNext: (payload: Payload<any, Encodable>) => this.call.onNext(payload.data),
                     onSubscribe: (subscription: ISubscription) => {
                         this.call.onSuccess(true);
-                        subscription.request(1000000); // set it to some max value
+                        subscription.request(2147483647);
                     },
                     onError: this.call.onError,
                 })
             },
             onError: this.call.onError,
-            onSubscribe: cancel => this.call.cancelCallback(cancel)
+            onSubscribe: cancel => this.call.cancelCallback(cancel),
         })
     }
 

@@ -75,10 +75,10 @@ public class OAuth2ResourceServerSecurityConfiguration {
                 .pathMatchers("/api/publish").permitAll()
                 .anyExchange().permitAll()
                 .and()
-//                .oauth2ResourceServer(oauth2ResourceServer ->
-//                        oauth2ResourceServer
-//                                .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
-//                )
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer
+                                .jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter()))
+                )
                 .build();
     }
 
@@ -110,8 +110,8 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                 .route("*").permitAll()
                                 .anyRequest().permitAll()
                                 .anyExchange().permitAll())
-//                .jwt(jwtSpec -> jwtSpec.authenticationManager(jwtReactiveAuthenticationManager(
-//                        ReactiveJwtDecoders.fromOidcIssuerLocation(claimsConfiguration.getIssuer()))))
+                .jwt(jwtSpec -> jwtSpec.authenticationManager(jwtReactiveAuthenticationManager(
+                        ReactiveJwtDecoders.fromOidcIssuerLocation(claimsConfiguration.getIssuer()))))
                 .build();
     }
 
