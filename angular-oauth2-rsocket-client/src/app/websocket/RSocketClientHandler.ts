@@ -83,8 +83,8 @@ export class RSocketClientHandler {
     }
 
     public close() {
-        this.client.close();
-        this.webSocketClient.close();
+        this.client?.close();
+        this.webSocketClient?.close();
     }
 }
 

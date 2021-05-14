@@ -1,6 +1,6 @@
 import { RSocketClientHandler } from './RSocketClientHandler';
 
-export class RSocketClientResume {
+export class ClientResume {
     private handler: RSocketClientHandler = null;
     private status: string = null;
 
@@ -10,10 +10,10 @@ export class RSocketClientResume {
 
     private init(call: RSocketResumeRequest) {
         this.handler = new RSocketClientHandler({
+            ...this.call,
             onSuccess: () => {
                 // not implemented
             },
-            ...this.call,
             cancelCallback: () => {
                 // not implemented
             },

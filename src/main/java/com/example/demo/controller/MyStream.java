@@ -26,7 +26,7 @@ public class MyStream {
 
     // @PreAuthorize est optionnel, sauf qi on veut vérifier un / des roles précis
     // @PreAuthorize("hasRole('PRINT') && hasRole('LIST')")
-    @MessageMapping({"stream"})
+    @MessageMapping({"notif"})
     public Flux<Person> stream(@RequestParam SubcribeNotif notif, @AuthenticationPrincipal Jwt jwt) {
         String login = authUtil.getLogin(jwt);
         return service.stream(login);
