@@ -4,22 +4,22 @@ import { InitNotif } from './InitNotif';
 import { ClientResume } from './ClientResume';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import {ConfigurationService} from '../core/configuration.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class NotificationService {
-    private notifServerUrl: string = 'ws://localhost:7000/rsocket';
 
-    constructor(private _authService: AuthService) {}
+    constructor(private authService: AuthService, private configurationService: ConfigurationService) {}
 
     subscribeSummerNotif(init: InitNotif): Observable<ClientResume> {
-        return this._authService.getAccessToken()
+        return this.authService.getAccessToken()
             .pipe(map(accessToken => {
                 return new ClientResume({
                     jwt: accessToken,
-                    url: this.notifServerUrl,
-                    api: 'notif',
+                    url: this.configurationService.getConfiguration().urlAlertDiffusion,
+                    api: this.configurationService.getConfiguration().canalStreamAlertDiffusion,
                     parameters: init.parameters,
                     onNext: init.onNext,
                 });

@@ -1,4 +1,4 @@
 export interface InitNotif {
-    parameters: any,
-    onNext
+    parameters: any;
+    onNext;
 }
